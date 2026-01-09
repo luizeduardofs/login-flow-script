@@ -38,36 +38,49 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-(async function () {
+(function () {
   const currentScript = document.currentScript;
   const siteId = currentScript.getAttribute("site-id");
 
-  if (!token || !siteId) {
-    window.location.href = "/login";
-    return;
-  }
+  async function checkAccess() {
+    const path = window.location.pathname;
+    const token = sessionStorage.getItem("token");
 
-  const payload = {
-    url: window.location.pathname,
-    token: sessionStorage.getItem("token"),
-    site_id: siteId,
-  };
+    if (path === "/login") return;
 
-  try {
-    const response = await fetch("http://localhost:3333/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const result = await response.json();
-
-    if (result.authorized === false) {
+    if (!token || !siteId) {
       window.location.href = "/login";
-    } else {
-      window.location.href = "/home";
+      return;
     }
-  } catch (error) {
-    console.error("Error connecting to the authentication server.:", error);
+
+    try {
+      const response = await fetch("http://localhost:3333/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: path, token, site_id: siteId }),
+      });
+
+      const result = await response.json();
+
+      if (result.authorized === false) {
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      console.error("Auth Error:", error);
+    }
   }
+
+  checkAccess();
+
+  window.addEventListener("popstate", checkAccess);
+
+  let oldHref = document.location.href;
+  const body = document.querySelector("body");
+  const observer = new MutationObserver((mutations) => {
+    if (oldHref !== document.location.href) {
+      oldHref = document.location.href;
+      checkAccess();
+    }
+  });
+  observer.observe(body, { childList: true, subtree: true });
 })();

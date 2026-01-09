@@ -23,11 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (response.ok && result.token) {
         sessionStorage.setItem("token", result.token);
-        checkAccess();
-        window.location.href = "/home";
+        window.location.replace(window.location.origin + "/home");
       } else {
-        checkAccess();
-        window.location.href = "/login";
+        alert("Erro no login: " + (result.message || "Credenciais inválidas"));
       }
     } catch (error) {
       console.error("Error connecting to the authentication server:", error);
@@ -43,17 +41,26 @@ document.addEventListener("DOMContentLoaded", () => {
 (function () {
   const currentScript = document.currentScript;
   const siteId = currentScript.getAttribute("site-id");
+  const path = window.location.pathname;
+  const token = sessionStorage.getItem("token");
+
+  if (path === "/login") {
+    if (token) {
+      window.location.href = "/home";
+    }
+    return;
+  }
+
+  if (!token || !siteId) {
+    window.location.href = "/login";
+    return;
+  }
 
   async function checkAccess() {
     const path = window.location.pathname;
     const token = sessionStorage.getItem("token");
 
     if (path === "/login") return;
-
-    if (!token || !siteId) {
-      window.location.href = "/login";
-      return;
-    }
 
     try {
       const response = await fetch("http://localhost:3333/verify", {

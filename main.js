@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
       password: passwordInput ? passwordInput.value : "",
     };
     try {
-      const response = await fetch("http://localhost:3000/member-login", {
+      const response = await fetch("http://localhost:3333/member-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   try {
-    const response = await fetch("http://localhost:3000/verify", {
+    const response = await fetch("http://localhost:3333/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

@@ -42,8 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentScript = document.currentScript;
   const siteId = currentScript.getAttribute("site-id");
 
-  if (!siteId) {
-    console.error("Erro: Atributo site-id não encontrado na tag script.");
+  if (!token || !siteId) {
+    window.location.href = "/login";
     return;
   }
 
@@ -63,11 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const result = await response.json();
 
     if (result.authorized === false) {
-      console.warn("Access denied. Redirecting...");
-      //   window.location.href = result.redirect;
       window.location.href = "/login";
     } else {
-      console.log("✅ Authorized access to the website:", siteId);
+      window.location.href = "/home";
     }
   } catch (error) {
     console.error("Error connecting to the authentication server.:", error);

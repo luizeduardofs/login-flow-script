@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (response.ok && result.token) {
           sessionStorage.setItem("token", result.token);
           // Redireciona para home após salvar o token
-          window.location.replace(window.location.origin + "/home");
+          window.location.replace(window.location.origin + "/");
         } else {
           alert(
             "Erro no login: " + (result.message || "Credenciais inválidas")
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 1. Se estiver na página de login, não bloqueia
     if (path === "/login" || path === "/login-page") {
       // Se já está logado e tentou entrar no login, manda pra home
-      if (token) window.location.href = "/home";
+      if (token) window.location.href = "/";
       return;
     }
 

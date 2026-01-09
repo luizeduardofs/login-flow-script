@@ -64,7 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (result.authorized === false) {
       console.warn("Access denied. Redirecting...");
-      window.location.href = result.redirect;
+      //   window.location.href = result.redirect;
+      window.location.href = "/login";
     } else {
       console.log("✅ Authorized access to the website:", siteId);
     }

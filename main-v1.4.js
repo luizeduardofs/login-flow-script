@@ -24,7 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.ok && result.token) {
         sessionStorage.setItem("token", result.token);
         checkAccess();
+        window.location.href = "/home";
       } else {
+        checkAccess();
         window.location.href = "/login";
       }
     } catch (error) {

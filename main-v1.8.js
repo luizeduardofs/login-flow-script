@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const btnLogout = document.getElementById("btn-logout");
   const btnLogin = document.getElementById("btn-login");
+  const siteId = currentScript?.getAttribute("site-id");
 
   if (btnLogin) {
     btnLogin.addEventListener("click", async (e) => {
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const payload = {
         email: emailInput ? emailInput.value : "",
         password: passwordInput ? passwordInput.value : "",
+        siteId: siteId ? siteId : "",
       };
 
       try {

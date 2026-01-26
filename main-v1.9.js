@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     btnLogin.addEventListener("click", async (e) => {
       e.preventDefault();
 
-      const emailInput = document.querySelector("[lf-login-email]");
-      const passwordInput = document.querySelector("[lf-login-password]");
+      const emailInput = document.querySelector("[login-flow-email]");
+      const passwordInput = document.querySelector("[login-flow-password]");
 
       const payload = {
         email: emailInput ? emailInput.value : "",
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.replace(window.location.origin + "/");
         } else {
           alert(
-            "Erro no login: " + (result.message || "Credenciais inválidas")
+            "Erro no login: " + (result.message || "Credenciais inválidas"),
           );
         }
       } catch (error) {

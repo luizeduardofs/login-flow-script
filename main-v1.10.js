@@ -17,11 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        const response = await fetch("http://localhost:3333/member-login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+        const response = await fetch(
+          "https://login-flow-backend.onrender.com/member-login",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          },
+        );
 
         const result = await response.json();
 
@@ -66,11 +69,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3333/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: path, token, site_id: siteId }),
-      });
+      const response = await fetch(
+        "https://login-flow-backend.onrender.com/verify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: path, token, site_id: siteId }),
+        },
+      );
 
       const result = await response.json();
 

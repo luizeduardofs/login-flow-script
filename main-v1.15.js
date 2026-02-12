@@ -189,6 +189,13 @@ document.addEventListener("DOMContentLoaded", () => {
 				},
 			);
 
+			if (!response.ok) {
+				console.error(`Auth check failed with status ${response.status}`);
+				sessionStorage.removeItem("token");
+				window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+				return;
+			}
+
 			const result = await response.json();
 
 			if (result.authorized === false) {
@@ -197,6 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			}
 		} catch (error) {
 			console.error("Auth Error:", error);
+			sessionStorage.removeItem("token");
+			window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
 		}
 	}
 

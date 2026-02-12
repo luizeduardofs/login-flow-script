@@ -183,29 +183,36 @@ document.addEventListener("DOMContentLoaded", () => {
 					credentials: "include",
 					body: JSON.stringify({
 						url: path,
-						token: token || null,
+						token: token || "",
 						site_id: siteId,
 					}),
 				},
 			);
 
-			if (!response.ok) {
-				console.error(`Auth check failed with status ${response.status}`);
-				sessionStorage.removeItem("token");
-				window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
-				return;
-			}
+			if (response.ok) {
+				const result = await response.json();
 
-			const result = await response.json();
-
-			if (result.authorized === false) {
-				sessionStorage.removeItem("token");
-				window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+				if (result.authorized === false) {
+					sessionStorage.removeItem("token");
+					window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+				}
+			} else {
+				if (!token) {
+					sessionStorage.removeItem("token");
+					window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+				} else {
+					console.error(`Auth check failed with status ${response.status}`);
+					sessionStorage.removeItem("token");
+					window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+				}
 			}
 		} catch (error) {
 			console.error("Auth Error:", error);
-			sessionStorage.removeItem("token");
-			window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+
+			if (token) {
+				sessionStorage.removeItem("token");
+				window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+			}
 		}
 	}
 

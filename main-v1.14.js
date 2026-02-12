@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	if (btnLogout) {
 		btnLogout.addEventListener("click", () => {
 			sessionStorage.removeItem("token");
-			window.location.href = "/login";
+			window.location.href = "/";
 		});
 	}
 });
@@ -166,8 +166,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			return;
 		}
 
-		if (!token || !siteId) {
-			window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+		if (!siteId) {
+			console.error("Site ID not found");
 			return;
 		}
 
@@ -181,7 +181,11 @@ document.addEventListener("DOMContentLoaded", () => {
 						Accept: "application/json",
 					},
 					credentials: "include",
-					body: JSON.stringify({ url: path, token, site_id: siteId }),
+					body: JSON.stringify({
+						url: path,
+						token: token || null,
+						site_id: siteId,
+					}),
 				},
 			);
 

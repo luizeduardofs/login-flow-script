@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		document.currentScript || document.querySelector("script[site-id]");
 	const siteId = currentScript?.getAttribute("site-id");
 
+	// ========================================================================
+	// Prepara o formulário de login com atributos de segurança
+	// ========================================================================
 	function prepareLoginForm() {
 		const emailInput = document.querySelector("[login-flow-email]");
 		const passwordInput = document.querySelector("[login-flow-password]");
@@ -30,26 +33,55 @@ document.addEventListener("DOMContentLoaded", () => {
 				emailInput.setAttribute("type", "email");
 			}
 
-			console.info("Login form ready");
+			console.info("✅ Login form ready");
 		}
 	}
 
 	prepareLoginForm();
 
+	// ========================================================================
+	// MODIFICADO: Intercepta o formulário ANTES de clonar o botão
+	// ========================================================================
 	if (btnLogin) {
-		const newBtnLogin = btnLogin.cloneNode(true);
-		btnLogin.parentNode?.replaceChild(newBtnLogin, btnLogin);
+		const parentForm = btnLogin.closest("form");
 
-		newBtnLogin.addEventListener("click", async (e) => {
+		// CRÍTICO: Intercepta o form PRIMEIRO
+		if (parentForm) {
+			const hasLoginFields =
+				parentForm.querySelector("[login-flow-email]") ||
+				parentForm.querySelector("[login-flow-password]");
+
+			if (hasLoginFields) {
+				// Previne submit do formulário
+				parentForm.addEventListener(
+					"submit",
+					(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						e.stopImmediatePropagation();
+						console.info("🛑 Form submission prevented");
+						return false;
+					},
+					true,
+				);
+
+				console.info("✅ Form submission intercepted");
+			}
+		}
+
+		// AGORA sim adiciona o listener no botão
+		btnLogin.addEventListener("click", async (e) => {
 			e.preventDefault();
 			e.stopPropagation();
 			e.stopImmediatePropagation();
+
+			console.info("🔵 Login button clicked");
 
 			const emailInput = document.querySelector("[login-flow-email]");
 			const passwordInput = document.querySelector("[login-flow-password]");
 
 			if (!emailInput || !passwordInput) {
-				console.error("Login fields not found");
+				console.error("❌ Login fields not found");
 				alert("Error: Login fields not found");
 				return;
 			}
@@ -58,9 +90,12 @@ document.addEventListener("DOMContentLoaded", () => {
 			const password = passwordInput.value;
 
 			if (!email || !password) {
-				alert("Por favor, preencha todos os campos");
+				console.warn("⚠️ Empty fields detected");
+				alert("Please fill in all fields");
 				return;
 			}
+
+			console.info("📤 Sending login request...");
 
 			const payload = {
 				email: email,
@@ -68,9 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
 				siteId: siteId,
 			};
 
-			const originalText = newBtnLogin.textContent;
-			newBtnLogin.textContent = "Loading...";
-			newBtnLogin.disabled = true;
+			const originalText = btnLogin.textContent;
+			btnLogin.textContent = "Loading...";
+			btnLogin.disabled = true;
 
 			try {
 				const response = await fetch(
@@ -88,55 +123,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
 				const result = await response.json();
 
+				console.info("📥 Server response:", result);
+
 				if (response.ok && result.token) {
+					console.info("✅ Login successful, redirecting...");
 					sessionStorage.setItem("token", result.token);
 					window.location.href = `${window.location.origin}/`;
 				} else {
+					console.error("❌ Invalid credentials");
 					alert("Invalid credentials");
-					newBtnLogin.textContent = originalText;
-					newBtnLogin.disabled = false;
+					btnLogin.textContent = originalText;
+					btnLogin.disabled = false;
 				}
 			} catch (error) {
-				console.error("Error connecting to the authentication server:", error);
+				console.error(
+					"❌ Error connecting to the authentication server:",
+					error,
+				);
 				alert("Error connecting to the authentication server");
 
-				newBtnLogin.textContent = originalText;
-				newBtnLogin.disabled = false;
+				btnLogin.textContent = originalText;
+				btnLogin.disabled = false;
 			}
 		});
-
-		const parentForm = newBtnLogin.closest("form");
-		if (parentForm) {
-			const hasLoginFields =
-				parentForm.querySelector("[login-flow-email]") ||
-				parentForm.querySelector("[login-flow-password]");
-
-			if (hasLoginFields) {
-				const newForm = parentForm.cloneNode(true);
-				parentForm.parentNode?.replaceChild(newForm, parentForm);
-
-				newForm.addEventListener(
-					"submit",
-					(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						e.stopImmediatePropagation();
-
-						const loginBtn = newForm.querySelector("#btn-login");
-						if (loginBtn) loginBtn.click();
-
-						return false;
-					},
-					true,
-				);
-
-				console.info("Form submitted");
-			} else {
-				console.info("Detected form, but is not a login form");
-			}
-		}
 	}
 
+	// ========================================================================
+	// Logout handler
+	// ========================================================================
 	if (btnLogout) {
 		btnLogout.addEventListener("click", () => {
 			sessionStorage.removeItem("token");
@@ -145,6 +159,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 });
 
+// ============================================================================
+// Verificação de acesso
+// ============================================================================
 (() => {
 	const currentScript =
 		document.currentScript || document.querySelector("script[site-id]");
@@ -222,6 +239,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	observer.observe(document.body, { childList: true, subtree: true });
 })();
 
+// ============================================================================
+// Proteções de segurança
+// ============================================================================
 (function initSecurityFixes() {
 	const originalAlert = window.alert;
 	window.alert = function (message) {
@@ -230,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			(message.includes("Passwords cannot be submitted") ||
 				(message.includes("password") && message.includes("submit")))
 		) {
-			console.warn("⚠️ Alerta de senha do navegador bloqueado:", message);
+			console.warn("⚠️ Browser password alert blocked:", message);
 			return;
 		}
 		// biome-ignore lint/complexity/noArguments: <explanation>
@@ -241,6 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		window.location.protocol === "http:" &&
 		window.location.hostname !== "localhost"
 	) {
-		console.warn("Site on HTTP. To maximize securite use HTTPS.");
+		console.warn("⚠️ Site on HTTP. To maximize security use HTTPS.");
 	}
 })();
